@@ -1,0 +1,1381 @@
+---
+title: "Limpieza y Análisis de Datos"
+authors: "Elena Segundo Martín / Javier Plo Moreno"
+date: "Diciembre 2020"
+output:
+  pdf_document: 
+    keep_tex: yes
+    toc: yes
+    toc_depth: 4
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    highlight: default
+    number_sections: no
+    theme: cosmo
+    toc: yes
+    toc_depth: 2
+---
+
+# 1 - DESCRIPCIÓN ACTIVIDAD
+
+El objetivo de esta actividad es el tratamiento de un dataset, que puede ser el creado en la práctica 1 o bien estar disponible en Kaggle. En nuestro caso se trata de un dataset disponible en ***https://kaggle.com/  https://www.kaggle.com/jmmvutu/summer-products-and-sales-in-ecommerce-wish***, y contiene información sobre las ventas de productos de Verano en la plataforma ecomerce **Wish**
+
+
+# 1.1 - OBJETIVOS
+
+
+- Aprender a aplicar los conocimientos adquiridos y su capacidad de resolución de problemas en 
+  entornos nuevos o poco conocidos dentro de contextos más amplios o multidisciplinares.
+
+- Saber identificar los datos relevantes y los tratamientos necesarios (integración, limpieza y 
+  validación) para llevar a cabo un proyecto analítico.
+
+- Aprender a analizar los datos adecuadamente para abordar la información contenida en los datos.
+
+- Identificar la mejor representación de los resultados para aportar conclusiones sobre el problema 
+  planteado en el proceso analítico.
+
+- Actuar con los principios éticos y legales relacionados con la manipulación de datos en función del 
+  ámbito de aplicación.
+
+- Desarrollar las habilidades de aprendizaje que permita continuar estudiando de un modo que tendrá 
+   que ser en gran medida autodirigido o autónomo.
+
+- Desarrollar la capacidad de búsqueda, gestión y uso de información y recursos en el
+  ámbito de la ciencia de datos.
+
+
+# 1.2 - COMPETENCIAS
+
+En esta práctica se desarrollan las siguientes competencias del Master de Data Science:
+
+- Capacidad de analizar un problema en el nivel de abstracción adecuado a cada situación y aplicar las habilidades y conocimientos adquiridos para abordarlo y resolverlo.
+
+- Capacidad para aplicar las técnicas específicas de tratamiento de datos (integración, transformación, limpieza y validación) para su posterior análisis.
+
+
+# 2 - RESOLUCIÓN
+
+# 2.1 - DESCRIPCIÓN DEL DATASET / IMPORTANCIA
+
+
+El conjunto de datos contiene listados de productos, así como calificaciones de productos y rendimiento de ventas obtenidos de la plataforma Wish si se escribe "verano" en el campo de búsqueda de dicha plataforma.
+
+
+
+El dataset está formado por 43 características (columnas) que presentan 1575 sucesos (filas o registros), correspondientes a productos disponibles, ratios de venta, etc.:
+
+***title***
+
+Title for localized for european countries. May be the same as title_orig if the seller did not offer a translation
+
+***title_orig***
+
+Original english title of the product
+
+***price***
+
+price you would pay to get the product
+
+***retail_price***
+
+reference price for similar articles on the market, or in other stores/places. Used by the seller to indicate a regular value or
+
+***currency_buyer***
+
+currency of the prices
+
+***units_sold***
+
+Number of units sold. Lower bound approximation by steps
+
+***uses_ad_boosts***
+
+Whether the seller paid to boost his product within the platform (highlighting, better placement or whatever)
+
+***rating***
+
+Mean product rating
+
+***rating_count***	
+
+Total number of ratings of the product
+
+***rating_five_count***	
+
+Number of 5-star ratings
+
+***rating_four_count***	
+
+Number of 4-star ratings
+
+***rating_three_count***	
+
+Number of 3-star ratings
+
+***rating_two_count***	
+
+Number of 2-star ratings
+
+***rating_one_count***	
+
+Number of 1-star ratings
+
+***badges_count***	
+
+Number of badges the product or the seller have
+
+***badge_local_product***	
+
+A badge that denotes the product is a local product. Conditions may vary (being produced locally, or something else). Some
+
+***badge_product_quality***	
+
+Badge awarded when many buyers consistently gave good evaluations 1 means Yes, has the badge
+
+***badge_fast_shipping***	
+
+Badge awarded when this product's order is consistently shipped rapidly
+
+***product_color***	
+
+Product's main color
+
+***tags***
+
+tags set by the seller
+
+***product_variation_size_id***	
+
+One of the available size variation for this product
+
+***product_variation_inventory***	
+
+Inventory the seller has. Max allowed quantity is 50
+
+***shipping_option_name***	
+***shipping_option_price***	
+
+shipping price
+
+***shipping_is_express***	
+
+whether the shipping is express or not. 1 for True
+
+***countries_shipped_to***
+
+Number of countries this product is shipped to. Sellers may choose to limit where they ship a product to
+
+***inventory_total***	
+
+Total inventory for all the product's variations (size/color variations for instance)
+
+***has_urgency_banner***	
+
+whether there was an urgency banner with an urgency
+
+***urgency_text***	
+
+A text banner that appear over some products in the search results.
+
+***origin_country***	
+
+***merchant_title***	
+
+Merchant's displayed name (show in the UI as the seller's shop name)
+
+***merchant_name***	
+
+Merchant's canonical name. A name not shown publicly. Used by the website under the hood as a canonical name.
+
+***merchant_info_subtitle***	
+
+The subtitle text as shown on a seller's info section to the user. (raw, not preprocessed). 
+
+***merchant_rating_count***	
+
+Number of ratings of this seller
+
+***merchant_rating***	
+
+merchant's rating
+
+***merchant_id***	
+
+merchant unique id
+
+***merchant_has_profile_picture***	
+
+Convenience boolean that says whether there is a `merchant_profile_picture` url
+
+***merchant_profile_picture***
+
+Custom profile picture of the seller (if the seller has one). Empty otherwise.
+
+***product_url***	
+
+url to the product page. You may need to login to access it
+
+***product_picture***	
+***product_id***	
+
+product identifier. You can use this key to remove duplicate entries if you're not interested in studying them.
+
+***theme***
+
+the search term used in the search bar of the website to get these search results.
+
+***theme	crawl_month***
+
+meta: for info only.
+
+
+La información contenida en el dataset es interesante, ya que proporciona multitud de datos relacionados con los productos veraniegos que se venden en la plataforma. Podríamos considerar analizar la información desde perspectivas como las siguientes:
+
+- Intentar validar la idea establecida de la sensibilidad humana a las caídas de precios (precio con descuento en comparación con el precio minorista original)
+- Buscar las mejores categorías de productos para saber qué se vende mejor
+- Comprobar si se venden los productos malos. Comprobar que hay de la relación entre la calidad de un producto (calificaciones) y su éxito. ¿El precio influye en esto?
+...
+
+A partir de este conjunto de datos, se plantea la problemática de determinar qué variables influyen más, y de que forma, sobre el precio del producto. También plantearemos algunas pruebas de contrastes de hipotésis, para confirmar o desmentir hechos que planteemos una vez analizados los datos y modelos de regresión para ver como ser relacionan las variables que consideremos más interesantes para conseguir nuestro objetivo.
+
+Este análisis puede ser de gran utilidad, ya que puede ayudar a la plataforma a proporcionar información a los comerciantes sobre que parametrización de las ofertas es la más adecuada para incrementar sus ventas y fomentar el uso de la plataforma, en base al feedback proporcionado por los usuarios finales.
+
+Trataremos tamibén de determinar que relación hay entre ventas de tallas grandes/pequeñas en relación al país de origen. 
+
+
+# 2.2 - INTEGRACIÓN Y SELECCIÓN DE DATOS
+
+
+Una vez definido el objetivo, creemos que las características más relevantes a considerar inicialmente son:
+
+price, retail_price, units_sold, uses_ad_boosts, rating, rating_count, rating_five_count,rating_four_count,
+rating_three_count,rating_two_count,rating_one_count,badges_count,
+badge_local_product,badge_product_quality,
+badge_fast_shipping,Tags,product_color,product_variation_inventory,
+shipping_is_express,countries_shipped_to,inventory_total,has_urgency_banner,
+merchant_rating,product_variation_size_id,origin_country
+
+# 2.3 - LIMPIEZA DE LOS DATOS
+
+Se realiza una inspección prelminar del archivo mediante Excel, donde, de entrada, no se observan valores vacíos, ni otro tipo de información que pueda ser problemática. El archivo csv viene separado por comas.
+
+Hacemos la carga de las librerías necesarias:
+
+```{r results='asis', echo=FALSE, include=FALSE,}
+
+# Cargamos las librerías necesarias
+
+if (!require("dplyr")) {
+   install.packages("dplyr")
+   library(dplyr)
+}
+
+
+if (!require("ggplot2")) {
+   install.packages("ggplot2")
+   library(ggplot2)
+}
+
+
+if (!require("nnet")) {
+   install.packages("nnet")
+   library(nnet)
+}
+
+
+if (!require("tidyverse")) {
+   install.packages("tidyverse")
+   library(tidyverse)
+}
+
+if (!require("regclass")) {
+    install.packages("regclass")
+   library(regclass)
+}
+
+if (!require("vcd")) {
+    install.packages("vcd")
+   library(vcd)
+}
+
+if (!require("XNomial")) {
+    install.packages("XNomial")
+   library(XNomial)
+}
+
+if (!require("nortest")) {
+    install.packages("nortest")
+   library(nortest)
+}
+
+if (!require("plot3D")) {
+   install.packages("plot3D")
+   library(plot3D)
+}
+
+if (!require("plot3Drgl")) {
+   install.packages("plot3Drgl")
+   library(plot3Drgl)
+}
+
+if (!require("car")) {
+   install.packages("car")
+   library(car)
+}
+
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Lectura de los datos
+
+
+SalesSummer <- read.csv("spwrap_2020_08.csv",header = TRUE)
+
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Tipos de datos asignados a cada campo
+
+sapply(SalesSummer, function(x) class(x))
+
+
+```
+
+Comprobamos que los tipos proporcinados para cada columna coinciden con los del dataset.
+
+
+## 2.3.1 - Selección de los datos de interes
+
+Siguiendo el criterio establecido en el apartado 2.2, vamos a seleccionar del dataset las columnas: price, retail_price, units_sold, uses_ad_boosts, rating, rating_count, rating_five_count,rating_four_count,
+rating_three_count,rating_two_count,rating_one_count,badges_count,badge_local_product,
+badge_product_quality,
+badge_fast_shipping,tags,product_color,product_variation_inventory,
+shipping_is_express,countries_shipped_to,inventory_total,merchant_rating
+
+has_urgency_banner parece una variable entera interesante(0,1), pero comprobamos que hay 1100 registros con un valor NA y el resto es siempre 1, con lo que resulta inviable su uso al no poder asignar un valor de forma coherente a dicho registros
+
+
+```{r,eval=TRUE,echo=FALSE}
+
+
+# Seleccionamos las variables
+
+
+SalesSummerObj <- select(SalesSummer,price,retail_price,units_sold, uses_ad_boosts, rating, rating_count, rating_five_count,rating_four_count,rating_three_count,rating_two_count,rating_one_count,badges_count,badge_local_product,badge_product_quality,badge_fast_shipping,tags,product_color,product_variation_inventory,shipping_is_express,countries_shipped_to,
+inventory_total,merchant_rating,product_variation_size_id,origin_country )
+
+
+```
+
+
+En una primera inspección detectamos valores NA, y algunas filas sin ningún valor asignado en las variables: product_color,product_variation_size_id,origin_country
+
+
+## 2.3.2 - Ceros y elementos vacíos
+
+Vamos a comprobar si tenemos ceros y/o elementos vacíos
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+# Comprobamos valores NA
+
+
+sapply(SalesSummerObj, function(x) sum(is.na(x)))
+
+
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+# Comprobamos valores nulos
+
+
+sapply(SalesSummerObj, function(x) sum(is.null(x)))
+
+
+```
+
+No tenemos valores nulos en las variables a contemplar.
+
+Los 45 valores NA detectados en las variables rating_five_count,rating_four_count,rating_three_count,rating_two_count,
+rating_one_count, se deben al valor 0 en la variable rating_count. Es decir no hay desglose entre distintos tipos de rating 
+si el contador total es cero. El rating está calculado a partir del rating_count y la distribución de ratings:
+
+rating = rating5 * 5 + rating4 * 4 + rating3 * 3 + rating2 * 2 + rating1   / rating_count
+
+A efectos de cálculo sustituimos los valores NA por cero
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj$rating_five_count[is.na(SalesSummerObj$rating_five_count)] <- 0
+SalesSummerObj$rating_four_count[is.na(SalesSummerObj$rating_four_count)] <- 0
+SalesSummerObj$rating_three_count[is.na(SalesSummerObj$rating_three_count)] <- 0
+SalesSummerObj$rating_two_count[is.na(SalesSummerObj$rating_two_count)] <- 0
+SalesSummerObj$rating_one_count[is.na(SalesSummerObj$rating_one_count)] <- 0
+
+
+```
+
+
+La variable product_color tiene algunos valores sin información. Vamos a modificar esos valores asignando un string "No color".
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj$product_color[SalesSummerObj$product_color==""] <- "no color"
+
+
+```
+
+La variable product_color tiene algunos colores iguales pero representados de forma diferente, y que vamos a homogeneizar, para después factorizarlos correctamente:
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj$product_color[SalesSummerObj$product_color=="Army green" |
+                               SalesSummerObj$product_color=="armygreen" ] <- "army green"
+SalesSummerObj$product_color[SalesSummerObj$product_color=="wine red"  ] <- "winered"
+SalesSummerObj$product_color[SalesSummerObj$product_color=="RED"  ] <- "red"
+SalesSummerObj$product_color[SalesSummerObj$product_color=="Rose red"  ] <- "rosered"
+SalesSummerObj$product_color[SalesSummerObj$product_color=="White"  ] <- "white"
+SalesSummerObj$product_color[SalesSummerObj$product_color=="Pink"  ] <- "pink"
+
+
+```
+
+La variable origin_country tiene algunos valores sin información. Vamos a modificar esos valores asignando un string "NC".
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj$origin_country[SalesSummerObj$origin_country==""] <- "NC"
+
+
+```
+
+
+La variable product_variation_size_id tiene algunos valores sin información. Vamos a modificar esos valores asignando un string "No size".
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj$product_variation_size_id[SalesSummerObj$product_variation_size_id ==""] <- "No size"
+
+
+```
+
+## 2.3.3 - Identificación y tratamiento de outliers
+
+Un outlier es una observación anormal y extrema en una muestra estadística o serie temporal de datos, que puede afectar potencialmente a la estimación de los parámetros del mismo.
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+summary(SalesSummerObj)
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$price)$out
+
+```
+
+
+Vemos un único valor significativamente elevado (49).Vamos a considerarlo como outlier y eliminamos el registro del conjunto de datos.
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot(SalesSummerObj$price)
+
+```
+
+Vamos a considerarlo como outlier y eliminamos el registro que lo contiene del conjunto de datos.
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj <- SalesSummerObj[!(SalesSummerObj$price == 49),]
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$retail_price)$out
+
+```
+
+Idem caso vaiable price.
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$units_sold)$out
+
+```
+
+Todos los valores se repiten y hablamos de unidades vendidas, por lo que no vamos a considerarlos como outliers
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$rating)$out
+
+```
+
+Hablamos de un rating que va entre 1 y 5, y que ha sido calculado de origen a partir de las otras variable rating. No vamos a efectuar cambios sobre ellos
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$rating_five_count)$out
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$rating_four_count)$out
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$rating_three_count)$out
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$rating_two_count)$out
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$rating_one_count)$out
+
+```
+
+
+Tampoco vamos a realizar alteraciones sobre los valores de los ratings 1-5
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$product_variation_inventory)$out
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$inventory_total)$out
+
+```
+
+Se trata de valores de inventario que no vamos a categorizar como outliers.
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+boxplot.stats(SalesSummerObj$merchant_rating)$out
+
+```
+
+Se trata de un rating que va entre 2.333 y 5, no vamos a caterogizarlos como outliers
+
+
+## 2.3.4 - Exportación de los datos preprocesados
+
+Exportamos los datos preprocesados a un fichero .csv
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Exportación de los datos preprocesados a un fichero .csv
+
+write.csv(SalesSummerObj,"spwrap_2020_08_data_clean.csv")
+
+```
+
+
+## 2.3.5 - Factorización y niveles de las variables cuantitativas
+
+Vamos a factorizar la variable product_color. 
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Convertimos en factor y vemos sus niveles
+
+
+levels(factor(SalesSummerObj$product_color))
+
+```
+
+
+Factorizamos los valores para dicha variable
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj$product_color <- as.numeric(factor(SalesSummerObj$product_color))
+
+
+```
+
+
+
+# 2.4 - ANÁLISIS DE LOS DATOS
+
+
+
+## 2.4.2 - Selección de grupos de datos
+
+Seleccionamos un conjunto inicial de grupos de datos que nos pueden resultar interesantes de analizar y/o comparar.
+
+
+
+**Agrupación por utilización de anuncios uses_ad_boosts (0/1)**
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj.uses.ad.boosts.cero <- SalesSummerObj %>% filter(uses_ad_boosts == "0")
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.uses.ad.boosts.uno <- SalesSummerObj %>% filter(uses_ad_boosts == "1")
+
+```
+
+
+
+**Agrupación por insignia local product**
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj.badget.localproduct.cero <- SalesSummerObj %>% filter(badge_local_product== "0")
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj.badget.localproduct.uno <- SalesSummerObj %>% filter(badge_local_product== "1")
+
+```
+
+
+
+**Agrupación por insignia product quality**
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.badget.productquality.cero <- SalesSummerObj %>% filter(badge_product_quality== "0")
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.badget.productquality.uno <- SalesSummerObj %>% filter(badge_product_quality == "1")
+
+```
+
+
+
+**Agrupación por insignia fast shipping**
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+SalesSummerObj.badget.fastshipping.cero <- SalesSummerObj %>% filter(badge_fast_shipping == "0")
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.badget.fastshipping.uno <- SalesSummerObj %>% filter(badge_fast_shipping == "1")
+
+```
+
+
+
+**Agrupación por shipping express**
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.shipping.express.cero <- SalesSummerObj %>% filter(shipping_is_express == "0")
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.shipping.express.uno <- SalesSummerObj %>% filter(shipping_is_express == "1")
+
+```
+
+
+**Agrupación por intervalos de rating**
+
+rating <=1.5  -> Intervalo 1
+rating >1.5  and < 2.5  -> Intervalo 2
+rating >=2.5 and < 3.5 -> Intervalo 3
+rating >=3.5 and < 4.5 -> Intervalo 4
+rating >= 4.5 -> Intervalo 5
+
+Para ello crearemos una variable rating_interval donde asignaremos el valor 1 a 5 dependiendo del rango de valores definidos:
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj <- cbind(SalesSummerObj,rating_interval=c(as.integer(0)))
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj$rating_interval[SalesSummerObj$rating <= 1.5 ] <- 1
+SalesSummerObj$rating_interval[SalesSummerObj$rating > 1.5 & SalesSummerObj$rating < 2.5  ] <- 2
+SalesSummerObj$rating_interval[SalesSummerObj$rating >=2.5 & SalesSummerObj$rating < 3.5  ] <- 3
+SalesSummerObj$rating_interval[SalesSummerObj$rating >=3.5 & SalesSummerObj$rating < 4.5  ] <- 4
+SalesSummerObj$rating_interval[SalesSummerObj$rating >=4.5] <- 5
+
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.rating.interval.uno <- SalesSummerObj %>% filter(SalesSummerObj$rating_interval == "1")
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.rating.interval.dos <- SalesSummerObj %>% filter(SalesSummerObj$rating_interval == "2")
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.rating.interval.tres <- SalesSummerObj %>% filter(SalesSummerObj$rating_interval == "3")
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.rating.interval.cuatro <- SalesSummerObj %>% filter(SalesSummerObj$rating_interval == "4")
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj.rating.interval.cinco <- SalesSummerObj %>% filter(SalesSummerObj$rating_interval == "5")
+
+```
+
+
+*** Agrupación por tallas grandes y pequeñas ***
+
+Añadimos una variable size_category inicializada con valor EC (Empty Category)
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj <- cbind(SalesSummerObj,size_category=c("EC"))
+
+```
+
+
+Seteamos la nueva variable en funcion de tallas pequeñas (SS) o grandes (HS)
+
+```{r,eval=TRUE,echo=TRUE}
+
+SalesSummerObj$size_category[SalesSummerObj$product_variation_size_id == "XS" | 
+SalesSummerObj$product_variation_size_id == "" | SalesSummerObj$product_variation_size_id == "XXS" |
+SalesSummerObj$product_variation_size_id == "XXXS" | SalesSummerObj$product_variation_size_id == "S"] <- "SS"
+
+SalesSummerObj$size_category[SalesSummerObj$product_variation_size_id == "XL" | 
+SalesSummerObj$product_variation_size_id == "XXL" |SalesSummerObj$product_variation_size_id ==  "XXXL" | 
+SalesSummerObj$product_variation_size_id == "XXXXL" | SalesSummerObj$product_variation_size_id == "XXXXXL"] <- "HS"
+
+
+```
+
+
+
+
+## 2.4.3 - Comprobación de normalidad y homogeneidad de la varianza
+
+
+Para la comprobación de que los valores que toman nuestras variables cuantitativas provienen de una población distribuida normalmente, utilizaremos la prueba de normalidad de 
+Shapiro.
+
+Así, se comprueba que para que cada prueba se obtiene un p-valor superior al nivel de significación prefijado alfa = 0.05. Si esto se cumple, entonces se considera que variable en
+cuestión sigue una distribución normal
+
+```{r,eval=TRUE,echo=TRUE}
+
+alpha = 0.05
+
+col.names = colnames(SalesSummerObj)
+
+for (i in 1:ncol(SalesSummerObj)) 
+  {
+    if (i == 1) cat("Variables que no siguen una distribución normal:\n")
+      if (is.integer(SalesSummerObj[,i]) | is.numeric(SalesSummerObj[,i])) 
+        {
+          p_val = shapiro.test(SalesSummerObj[,i])$p.value
+          if (p_val < alpha) {
+                              cat(col.names[i])
+                              if (i < ncol(SalesSummerObj) - 1) cat(", ")
+                              if (i %% 2 == 0) cat("\n")
+                            }
+        }
+  }
+
+
+```
+
+Podemos comprobarlo gráficamente por ejemplo con la variable price.
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+ggplot(data = SalesSummerObj, aes(x = price)) +
+  geom_histogram(aes(y = ..density..,fill = ..count..)) +
+  stat_function(fun = dnorm, colour = "firebrick",
+                args = list(mean = mean(SalesSummerObj$price),
+                            sd = sd(SalesSummerObj$price))) +
+  ggtitle("Histograma + curva normal teórica (price)")
+
+
+```
+
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+qplot(price, data = SalesSummerObj,geom="density")+ geom_vline(xintercept = mean(SalesSummerObj$price),
+color="red")+ geom_vline(xintercept = median(SalesSummerObj$price), color="blue")
+
+```
+
+**Ninguna de las variables seleccionadas es normal**
+
+Seguidamente, pasamos a estudiar la homogeneidad de varianzas.
+
+Como ninguna de las variables es normal aplicaremos el test de Levene entre price y las variables que vamos a utilizar:
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+leveneTest(price ~ factor(SalesSummerObj$uses_ad_boosts), SalesSummerObj, center=median)
+leveneTest(price ~ factor(SalesSummerObj$badge_local_product), SalesSummerObj, center=median)
+leveneTest(price ~ factor(SalesSummerObj$badge_product_quality), SalesSummerObj, center=median)
+leveneTest(price ~ factor(SalesSummerObj$badge_fast_shipping), SalesSummerObj, center=median)
+leveneTest(price ~ factor(SalesSummerObj$shipping_is_express), SalesSummerObj, center=median)
+leveneTest(price ~ factor(SalesSummerObj$rating_interval), SalesSummerObj, center=median)
+leveneTest(price ~ factor(SalesSummerObj$origin_country), SalesSummerObj, center=median)
+
+
+```
+
+Los resultados indican que **no hay diferencias significativas** en los grupos de varianzas.(p-value > 0.05)
+
+
+## 2.4.4 - Aplicación de pruebas estadísticas
+
+
+### 2.4.4.1 - Estudio de la Correlación / Test de Spearman
+
+En primer lugar, procedemos a realizar un análisis de correlación entre las distintas variables para determinar cuáles de ellas ejercen una mayor influencia sobre el precio del artículo. Para ello, se utilizará el coeficiente de correlación de Spearman, puesto que hemos visto que tenemos datos que no siguen una distribución normal.
+
+
+
+```{r results='asis', echo=FALSE, include=FALSE,}
+
+corr_matrix <- matrix(nc = 2, nr = 0)
+
+colnames(corr_matrix) <- c("estimate", "p-value")
+
+# Calcular el coeficiente de correlación para cada variable cuantitativa con respecto al campo "price"
+
+for (i in 2:(ncol(SalesSummerObj))) 
+  {
+    if (is.integer(SalesSummerObj[,i]) | is.numeric(SalesSummerObj[,i])) 
+      {
+        
+        spearman_test = cor.test(SalesSummerObj[,i],SalesSummerObj[,1], method = "spearman")
+        corr_coef = spearman_test$estimate
+        p_val = spearman_test$p.value
+        
+        pair = matrix(ncol = 2, nrow = 1)
+        pair[1][1] = corr_coef
+        pair[2][1] = p_val
+        corr_matrix <- rbind(corr_matrix, pair)
+        rownames(corr_matrix)[nrow(corr_matrix)] <- colnames(SalesSummerObj)[i]
+        
+        
+        
+      }
+}
+
+
+```
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+print(corr_matrix)
+
+
+```
+
+Los grados de correlación de las variables son tanto más altos, cuanto más cerca están de -1 o de 1. Teniendo esto en cuenta, la variable más relevante en la fijación del precio es el precio de retail (retail_price), seguida de product_variation_inventory, y las variables de rating_count. De cualquier forma, no hay ninguna variable que este correlacionada de forma fuerte con la variable price, ya que ninguna está por encima de 0.8
+
+El valor P es la probabilidad de que hubiera encontrado el resultado actual si el coeficiente de correlación fuera cero (hipótesis nula). Si esta probabilidad es menor que el 5% convencional (P <0.05), el coeficiente de correlación se denomina estadísticamente significativo, por lo que modemos concluir que, el coeficiente de correlación entre retail_price y price (0.5358) es estadísticamente significativo, lo mismo sucede para las variables rating_*_count.
+
+El valor del coeficiente positivo, indica una correlación positiva, es decir, cuanto mayor es el precio de retail, mayor es el precio del producto.
+
+
+### 2.4.4.2 - Contraste de Hipótesis
+
+***Determinar si el precio es superior dependiendo del rating_interval del producto***
+
+Para ello utilizaremos dos muestras: una cuando la variable rating_interval del producto es cinco (rating >= 4.5) y otra cuando dicha variable es tres (rating <= 1.5)***
+
+Para realizar este tipo de tests paramétricos, es preciso que los datos sean normales, si la muestra es de tamaño inferior a 30. En nuestro caso, el contraste de hipótesis es aplicable ya que superamos dicho valor.
+
+
+Planteamos un contraste de Hipótesis unilateral sobre  la diferencia de medias:
+
+$$
+  H_{0}: \mu_{1} - \mu_{2} = 0
+$$
+
+
+$$
+  H_{1}: \mu_{1} - \mu_{2} < 0
+$$
+donde mu1 es la media de la población de la que se extrae la primera muestra y mu2 es la media de la población de la que extrae la segunda. Así, tomaremos alfa = 0.05.
+
+```{r,eval=TRUE,echo=TRUE}
+
+t.test(SalesSummerObj.rating.interval.tres$price,SalesSummerObj.rating.interval.cinco$price,alternative = "less")
+
+```
+Obtenemos un p-value mayor que el valor de significación, por lo que no podemos rechazar la hipotésis nula. Por lo tanto no podemos concluir que los artículos con un rating_interval = 5 sean más caros que los que tienen un rating_interval = 1
+
+
+***Determinar si el precio es superior para los productos de mayor calidad***
+
+Para ello utilizaremos dos muestras: una cuando la variable badget_product_quality del producto es 1 y otra cuando dicha variable es cero***
+
+Aplicaremos el mismo test de hpótesis que en el caso anterior.
+
+```{r,eval=TRUE,echo=TRUE}
+
+t.test(SalesSummerObj.badget.productquality.cero$price,SalesSummerObj.badget.productquality.uno$price,alternative = "less")
+
+```
+
+Obtenemos un p-value mayor que el valor de significación, por lo que no podemos rechazar la hipotésis nula. Por lo tanto no podemos concluir que los artículos catalogados de mayor calidad tengan un precio superior
+
+
+***Determinar si el uso de anuncios incrementa al precio del  producto***
+
+
+Para ello utilizaremos dos muestras: una cuando la variable uses_ad_boosts del producto es 1 y otra cuando dicha variable es cero***
+
+Aplicaremos el mismo test de hpótesis que en el caso anterior.
+
+```{r,eval=TRUE,echo=TRUE}
+
+t.test(SalesSummerObj.uses.ad.boosts.cero$price,SalesSummerObj.uses.ad.boosts.uno$price,alternative = "less")
+
+
+```
+
+Obtenemos un p-value mayor que el valor de significación, por lo que no podemos rechazar la hipotésis nula. Por lo tanto no podemos concluir que el uso de anuncios incrementa el precio de venta.
+
+***Determinar si el envío rápido incrementa al precio del  producto***
+
+**NO** podemos aplicar el test para este grupo de datos ya que la muestra para fastshipping.uno es 19 < 30 y la variable no es normal.
+
+***Determinar si el envío express incrementa al precio del  producto***
+
+**NO** podemos aplicar el test para este grupo de datos ya que la muestra para shipping.uno es 3 < 30 y la variable no es normal.
+
+
+# 2.4.4.3 - Regresión lineal 
+
+
+Plantearemos varios modelos de regresión utilizando algunos de los regresores cuantitativos que tengan la correlación más alta con la variable precio:
+
+***retail_price, rating_count, rating_five_count, rating_four_count, rating_three_count, rating_two_count, rating_one_count, product_variation_inventory***
+
+
+
+```{r,eval=TRUE,echo=TRUE} 
+# regresores
+retprice = SalesSummerObj$retail_price
+pvinventory = SalesSummerObj$product_variation_inventory
+ratingone = SalesSummerObj$rating_one_count
+ratingfour = SalesSummerObj$rating_four_count
+
+# variable independiente
+
+artprice = SalesSummerObj$price
+
+``` 
+
+Modelo1 : Utilizando los regresores retprice y pvinventory.
+
+```{r,eval=TRUE,echo=TRUE} 
+
+# modelo1 
+
+
+modelo1 <- lm(artprice ~ retprice + pvinventory, data = SalesSummerObj)
+
+summary(modelo1)
+
+```
+
+Modelo2: Añadiendo el modelo anterior los regresores ratingfour y rating one
+
+```{r,eval=TRUE,echo=TRUE} 
+
+modelo2 <- lm(artprice ~ retprice + pvinventory + ratingfour + ratingone, data = SalesSummerObj)
+
+summary(modelo2)
+
+``` 
+
+***Calidad del ajuste de los modelos***
+
+
+El Coeficiente de determinación R2 mide el grado en el que el modelo de regresión lineal explica la variaciones que se producen en la variable dependiente de las observaciones,
+y se calcula dividiendo la varianza explicada por la recta de regresión entre la varianza total de los datos
+
+$$
+ R^2 = {\frac{\sigma \space recta \space regresión}{\sigma \space total \space datos}} = {\frac{SCR} {SCT}} =  1 - {\frac{SCE} {SCT}}
+$$ 
+
+Este coeficiente aparecía al calcular ambos modelos con la función lm(), en nuestro caso es 0.1644 en el modelo1, pero conviene utilizar el ajustado que es: **0.1633**
+
+Lo que implica que el modelo es capaz de explicar alrededor del **16 % de la varianza de las observaciones**. Resultado bastante pobre.
+
+El coeficiente de correlación muestral, r, mide el grado de asociación entre las variables. Vamos a calcularlo a partir del coeficiente de determinación:
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+r1 = sqrt(0.1633)
+
+```
+
+```{r results='asis', echo=TRUE, include=FALSE}
+
+print(paste("El coeficiente de correlación muestral para el modelo  es:  ",r1, sep=""))
+
+
+```
+
+Lo que indica  una relación lineal no excesivamente fuerte entre las variables utilizadas y el precio.
+
+
+A continuación vamos a calcular los intervalos de confianza del modelo1:
+
+```{r,eval=TRUE,echo=TRUE} 
+
+confint(modelo1)
+
+``` 
+
+Vemos que el intervalo menos amplio corresponde al regresor retprice, por lo que indica mayor precisión. Es decir, mientras más confianza se necesita, más ancho es el intervalo.
+
+Observamos que la mayor ineficiencia en la estimación del parámetro corresponde al regresor pvinventory, pero con una diferencia realmene mínima respecto a retprice
+
+En el segundo modelo comprobamos que el hecho de añadir los regresores ratingfour y ratingone no han hecho variar el coeficiente de determinación ajustado, que se queda en un 16%, por lo que se descarta la utilización de estos regresores. Es decir, estos regresores no aportan nada en cuanto a la capacidad de predicción del modelo.
+
+Realizaremos una predicción del precio de venta:
+
+```{r,eval=TRUE,echo=TRUE} 
+
+newdata <- data.frame(retprice=30,pvinventory=50)
+
+# Predecir el precio
+
+predict(modelo1, newdata)
+
+
+``` 
+
+
+# 2.4.4.4 - Regresión Logística (Multinomial)
+
+Se trata de un modelo de regresión logística donde la variable dependiente tiene más de dos categorías . La respuesta puede o bien ser nominal o bien ordinal. A su vez, las variables explicativas pueden ser categóricas o cuantitativas.
+
+En este caso vamos a tratar como variable dependiente la variable (size_category (EC,HS,SS)), y como variable independiente origin_country (AT,CN,GB,NC,US,VE).
+
+Las variables que vamos a utilizar en este modelo son cuantitativas, por lo que el análisis de sus relaciones se ha de obtener mediante Tablas de contingencia y pruebas Chi-Cuadrado
+
+# 2.4.4.4.1 Tablas de Contingencia
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+Tabla.SC.OC <- table(SalesSummerObj$size_category,SalesSummerObj$origin_country)
+
+Tabla.SC.OC
+
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+plot(Tabla.SC.OC, col= c("red", "blue", "green", "yellow", "cyan", "magenta", "orange"),
+     main = "Origin Country vs Size Category")
+
+```
+
+Vemos que la mayor contribución a los tipos de tallas viene de China, especialmente sobre las tallas pequeñas. El siguiente país es Estados Unidos, sobre todo en tallas pequeñas también. Hay una contribución de ventas no catalogadas por país en las tallas grandes. Y países como China que contribuyen en gran medida a ventas donde no se han indicado las tallas.
+
+
+# 2.4.4.4.2 Estudio de la Correlación / Tests Chi-Squared
+
+Estamos tratando variables cuantitativas politómicas y nominales, por lo que, para valorar la independencia, el test Chi-squared resulta adecuado en algunos casos, y el test exacto de Fisher en otros. 
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+chisq.test(Tabla.SC.OC)
+
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+
+fisher.test(Tabla.SC.OC, conf.level = 0.95, simulate.p.value = FALSE)
+
+
+```
+
+Como el **p-value es > 0.05** no podemos rechazar la hipotésis nula, que indica independencia entre ambas variables. Por lo tanto no existe correlación entre ellas.
+
+
+```{r results='asis', echo=FALSE, include= FALSE}
+
+
+SalesSummerObj[with(SalesSummerObj,order(size_category)), ]
+
+```
+
+***Cálculo del modelo***
+
+
+```{r, results= 'hide', include=TRUE}
+
+model.sizecategory.origincountry = multinom(SalesSummerObj$origin_country ~ 
+SalesSummerObj$size_category, data = SalesSummerObj)
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Obtenemos el summary
+
+summary(model.sizecategory.origincountry)
+
+
+```
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Coefcientes Modelo 
+
+coefmodel.sizecategory.origincountry <- coef(model.sizecategory.origincountry)
+
+coefmodel.sizecategory.origincountry
+
+```
+
+Vamos a evaluar ahora los ***odds ratio***. Los ***odds*** es la razón de la probabilidad de ocurrencia de un suceso entre la probabilidad de su no ocurrencia.Vamos a ver como transformamos los coeficientes en odds ratios. Trataremos de ser algo didácticos ,y vamos a explicar en detalle su cálculo para China:
+
+En esta expresión, el modelo está expresado en términos del ***log-odds***:
+
+$$
+ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 17.261 + 16.353 * HS  - 10.293 * SS
+$$
+Si se escribe en términos de odds, se tiene:
+
+$$
+{\frac{P(Y=1/X)}{1-P(Y=1/X)}} = {\frac{e^{b_0}+ \sum_{i= 1}^{n}(b_{i}x_{i})}{1+e^{b_0}+\sum_{i= 1}^{n}(b_{i}x_{i})}}
+$$
+Se calculan los distintos valores de las probabilidades para las cuatro combinaciones entre la variable dependiente Y con la independiente X:
+
+$$
+{\frac{P(Y=1/X=1)}{1-P(Y=1/X=1)}} = {\frac{e^{b_0+b_1}}{1+e^{b_0+b_1}}}
+$$
+
+$$
+{\frac{P(Y=1/X=0)}{1-P(Y=1/X=0)}} = {\frac{e^{b_0}}{1+e^{b_0}}}
+$$
+
+$$
+{\frac{P(Y=0/X=1)}{1-P(Y=0/X=1)}} = {\frac{1}{1+e^{b_0+b_1}}}
+$$
+
+
+
+$$
+{\frac{P(Y=0/X=0)}{1-P(Y=0/X=0)}} = {\frac{1}{1+e^{b_0}}}
+$$
+
+Los ***odds-ratio (OR)*** se calculan como la razón entre los ***odds***, donde la variable respuesta Y está presente entre los individuos, es decir, toma el valor Y = 1, y la variable independiente X puede estar presente o no, es decir, tomar los valores X = 1 y X = 0.
+
+$$
+OR = {\frac{{\frac{P(Y=1/X=1)}{1-P(Y=1/X=1)}}}{{\frac{P(Y=1/X=0)}{1-P(Y=1/X=0)}}}} = {e^{b_1}}
+$$
+
+
+• Un OR = 1 implica que no existe asociación entre la variable respuesta y la covariable.
+• Un OR inferior a la unidad se interpreta como un factor de protección, es decir, el suceso es menos probable en presencia de dicha covariable.
+• Un OR mayor a la unidad se interpreta como un factor de riesgo, es decir,el suceso es más probable en presencia de dicha covariable.
+
+Para el caso de los Estados Unidos:
+
+
+$$
+ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 13.626 -3.737 * HS - 10.630 * SS 
+$$
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Odds Ratios Modelo 
+
+
+exp(coefmodel.sizecategory.origincountry)
+
+
+```
+
+Calcularemos ahora los intervalos de confianza:
+
+```{r,eval=TRUE,echo=TRUE}
+
+# Intervalos de confianza odds ratio
+
+
+Modelo.sizecategory.origincountry <- confint(model.sizecategory.origincountry)
+
+Modelo.sizecategory.origincountry
+
+```
+
+
+# 2.5 - REPRESENTACIÓN DE RESULTADOS
+
+**Interpretación de Modelos**
+
+
+
+
+***Vamos a representar gráficamente los datos de los regresores retprice, pvinventory y ratingone respecto a artprice:***
+
+```{r,eval=TRUE,echo=TRUE}
+
+scatter3D(x=retprice, y=pvinventory, z =ratingone ,groups=artprice, theta=30, phi=8, pch=20, bty = "g", 
+          grid=FALSE, fit="smooth")
+
+
+```
+
+Vemos que los precios más bajos se concentran para valores bajos y altos de inventario de la talla de la compra, y para precios de retail bajos. Los precios medios se agrupan en los valores centrales de los tres regresores, y los precios más altos se encuentran para valores centrales de los regresores retprice y pvinventory, y para valores altos del regresor ratingone.
+
+**Tabla resumen modelo regresión logística multinomial**
+
+
+# 2.6 - RESOLUCIÓN DEL PROBLEMA
+
+
+# REFERENCIAS
+
+
+Documentación máster UOC: Modelos_de_Regresión_Logística.pdf (PID_00276229)
+
+6 Errores que cometes al usar las pruebas de hipótesis clásicas: https://www.maximaformacion.es/blog-dat/6-errores-que-cometes-al-usar-las-pruebas-de-hipotesis-clasicas/
+
+Modelos con Variables Cualitativas: https://bookdown.org/content/2274/modelos-con-variables-cualitativas.html
+
+Estadística conceptos clave: https://www.usj.es/sites/default/files/tarjetas/aprendizaje/EstadisticaConceptosClave.pdf
+
+Análisis de variables categóricas con R: https://biocosas.github.io/R/060_analisis_datos_categoricos.html
+
+Correlación: teoría y práctica: https://www.ccg.unam.mx/~vinuesa/R4biosciences/docs/Tema8_correlacion.html
+  
+Test estadísticos para variables cualitativas: test exacto de Fisher, chi-cuadrado de Pearson, McNemar y Q-Cochran: 
+https://www.cienciadedatos.net/documentos/22.2_test_exacto_de_fisher_chi-cuadrado_de_pearson_mcnemar_qcochran#(chi^2)_de_Pearson_(test_de_independencia)
+
+Logistic Regression in R: https://rpubs.com/rslbliss/r_logistic_ws
+
+Multinomial distribution: https://en.wikipedia.org/wiki/Multinomial_distribution
+
+Test estadísticos para variables cualitativas: test binomial exacto, test multinomial y test chi-cuadrado goodnes of fit:https://www.cienciadedatos.net/documentos/22.1_test_binomial_exacto_test_multinomial_test_chi-cuadrado_goodnes_of_fit
+
+Modelos de respuesta multinomial con R. Aplicación para el estudio de la depresión en pacientes con discapacidad: https://masteres.ugr.es/moea/pages/tfm1011/modelosderespuestamultinomialconraplicacionparaelestudiodeladepresionenpacientescondiscapacidad/!
+
+Regresión Logística Multinomial:
+Multinomialhttp://halweb.uc3m.es/esp/Personal/personas/jmmarin/esp/Categor/Tema5Cate.pdf  (Modelos Logit para respuestas nominales)
+
+
+
+
+
+
+
+
+
+
