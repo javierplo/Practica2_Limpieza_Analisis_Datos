@@ -1070,9 +1070,9 @@ $$
  R^2 = {\frac{\sigma \space recta \space regresión}{\sigma \space total \space datos}} = {\frac{SCR} {SCT}} =  1 - {\frac{SCE} {SCT}}
 $$ 
 
-Este coeficiente aparece al calcular ambos modelos con la función lm(), en nuestro caso es 0.1644 en el modelo1, pero conviene utilizar el ajustado que es: **0.2121**
+Este coeficiente aparece al calcular ambos modelos con la función lm(), en nuestro caso es 0.2264 en el modelo1, pero conviene utilizar el ajustado que es: **0.2234**
 
-Lo que implica que el modelo1 es capaz de explicar alrededor del **21.21 % de la varianza de las observaciones**. Resultado bastante pobre.
+Lo que implica que el modelo1 es capaz de explicar alrededor del **22.34 % de la varianza de las observaciones**. Resultado bastante pobre.
 
 El coeficiente de correlación muestral, r, mide el grado de asociación entre las variables. Vamos a calcularlo a partir del coeficiente de determinación:
 
@@ -1209,7 +1209,7 @@ Vamos a evaluar ahora los ***odds ratio***. Los ***odds*** es la razón de la pr
 En esta expresión, el modelo está expresado en términos del ***log-odds***:
 
 $$
-ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 17.261 + 16.353 * HS  - 10.293 * SS
+ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 12.564 + 16.729 * HS  - 5.904 * SS
 $$
 Si se escribe en términos de odds, se tiene:
 
@@ -1250,7 +1250,7 @@ $$
 Para el caso de los Estados Unidos:
 
 $$
-ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 13.626 -3.737 * HS - 10.630 * SS 
+ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 9.112 -4.31 * HS - 6.174 * SS 
 $$
 
 ```{r,eval=TRUE,echo=TRUE}
@@ -1293,7 +1293,7 @@ scatter3D(x=retprice, y=pvinventory, z =ratingone ,groups=artprice, theta=30, ph
 
 ```
 
-Vemos que los precios más bajos se concentran para valores bajos y altos de inventario de la talla de la compra, y para precios de retail bajos. Los precios medios se agrupan en los valores centrales de los tres regresores, y los precios más altos se encuentran para valores centrales de los regresores retprice y pvinventory, y para valores altos del regresor ratingone.
+Vemos que los precios más bajos se concentran para valores bajos y altos de inventario de la talla de la compra, y para precios de retail bajos. Los precios medios se agrupan en los valores centrales de los tres regresores, y los precios más altos se encuentran para valores bajos de los regresores retprice y pvinventory, y para valores altos del regresor ratingone.
 
 **Tabla resumen modelo regresión logística multinomial**
 
