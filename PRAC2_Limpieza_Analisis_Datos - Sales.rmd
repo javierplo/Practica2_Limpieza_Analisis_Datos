@@ -18,6 +18,28 @@ output:
     toc_depth: 2
 ---
 
+
+```{r,results='asis', echo=FALSE, include=FALSE,}
+
+# Código para salto de línea
+
+options(width=100)
+
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+```
+
 # 1 - DESCRIPCIÓN ACTIVIDAD
 
 El objetivo de esta actividad es el tratamiento de un dataset, que puede ser el creado en la práctica 1 o bien estar disponible en Kaggle. En nuestro caso se trata de un dataset disponible en ***https://kaggle.com/  https://www.kaggle.com/jmmvutu/summer-products-and-sales-in-ecommerce-wish***, y contiene información sobre las ventas de productos de Verano en la plataforma ecomerce **Wish**
@@ -231,18 +253,12 @@ the search term used in the search bar of the website to get these search result
 meta: for info only.
 
 
-La información contenida en el dataset es interesante, ya que proporciona multitud de datos relacionados con los productos veraniegos que se venden en la plataforma. Podríamos considerar analizar la información desde perspectivas como las siguientes:
+La información contenida en el dataset es interesante, ya que proporciona multitud de datos relacionados con los productos veraniegos que se venden en la plataforma. 
 
-- Intentar validar la idea establecida de la sensibilidad humana a las caídas de precios (precio con descuento en comparación con el precio minorista original)
-- Buscar las mejores categorías de productos para saber qué se vende mejor
-- Comprobar si se venden los productos malos. Comprobar que hay de la relación entre la calidad de un producto (calificaciones) y su éxito. ¿El precio influye en esto?
-...
-
-A partir de este conjunto de datos, se plantea la problemática de determinar qué variables influyen más, y de que forma, sobre el precio del producto. También plantearemos algunas pruebas de contrastes de hipotésis, para confirmar o desmentir hechos que planteemos una vez analizados los datos y modelos de regresión para ver cómo se relacionan las variables que consideremos más interesantes para conseguir nuestro objetivo.
+A partir de este conjunto de datos, se plantea la problemática de determinar qué variables influyen más, y de que forma, sobre el precio del producto. También plantearemos algunas pruebas de contrastes de hipotésis, para confirmar o desmentir hechos que planteemos una vez analizados los datos y modelos de regresión para ver cómo se relacionan las variables que consideremos más interesantes para determinar que relación hay entre ventas de tallas grandes/pequeñas en relación al país de origen.
 
 Este análisis puede ser de gran utilidad, ya que puede ayudar a la plataforma a proporcionar información a los comerciantes sobre qué parametrización de las ofertas es la más adecuada para incrementar sus ventas y fomentar el uso de la plataforma, en base al feedback proporcionado por los usuarios finales.
 
-Trataremos también de determinar qué relación hay entre ventas de tallas grandes/pequeñas en relación al país de origen. 
 
 
 # 2.2 - INTEGRACIÓN Y SELECCIÓN DE DATOS
@@ -250,12 +266,8 @@ Trataremos también de determinar qué relación hay entre ventas de tallas gran
 
 Una vez definido el objetivo, creemos que las características más relevantes a considerar inicialmente son:
 
-price, retail_price, units_sold, uses_ad_boosts, rating, rating_count, rating_five_count,rating_four_count,
-rating_three_count,rating_two_count,rating_one_count,badges_count,
-badge_local_product,badge_product_quality,
-badge_fast_shipping,Tags,product_color,product_variation_inventory,
-shipping_is_express,countries_shipped_to,inventory_total,has_urgency_banner,
-merchant_rating,product_variation_size_id,origin_country
+price, retail_price, units_sold, uses_ad_boosts, rating, rating_count, rating_five_count,rating_four_count,rating_three_count,rating_two_count,rating_one_count,badges_count,
+badge_local_product,badge_product_quality,badge_fast_shipping,Tags,product_color,product_variation_inventory,shipping_is_express,countries_shipped_to,inventory_total,has_urgency_banner,merchant_rating,product_variation_size_id,origin_country
 
 # 2.3 - LIMPIEZA DE LOS DATOS
 
@@ -326,6 +338,12 @@ if (!require("car")) {
 }
 
 
+if (!require("VIM")) {
+   install.packages("VIM")
+   library(VIM)
+}
+
+
 ```
 
 
@@ -348,14 +366,18 @@ sapply(SalesSummer, function(x) class(x))
 
 Comprobamos que los tipos proporcionados para cada columna coinciden con los del dataset.
 
+Vamos a ver algunos datos sobre cada variable:
+
+```{r,eval=TRUE,echo=TRUE}
+
+summary(SalesSummer)
+
+```
+
 
 ## 2.3.1 - Selección de los datos de interes
 
-Siguiendo el criterio establecido en el apartado 2.2, vamos a seleccionar del dataset las columnas: price, retail_price, units_sold, uses_ad_boosts, rating, rating_count, rating_five_count,rating_four_count,
-rating_three_count,rating_two_count,rating_one_count,badges_count,badge_local_product,
-badge_product_quality,
-badge_fast_shipping,tags,product_color,product_variation_inventory,
-shipping_is_express,countries_shipped_to,inventory_total,merchant_rating
+Siguiendo el criterio establecido en el apartado 2.2, vamos a seleccionar del dataset las columnas: price, retail_price, units_sold, uses_ad_boosts, rating, rating_count, rating_five_count,rating_four_count,rating_three_count,rating_two_count,rating_one_count,badges_count,badge_local_product,badge_product_quality,badge_fast_shipping,tags,product_color,product_variation_inventory,shipping_is_express,countries_shipped_to,inventory_total,merchant_rating
 
 has_urgency_banner parece una variable entera interesante(0,1), pero comprobamos que hay 1100 registros con un valor NA y el resto es siempre 1, con lo que resulta inviable su uso al no poder asignar un valor de forma coherente a dichos registros
 
@@ -396,9 +418,7 @@ sapply(SalesSummerObj, function(x) sum(is.null(x)))
 
 No tenemos valores nulos en las variables a contemplar.
 
-Los 45 valores NA detectados en las variables rating_five_count,rating_four_count,rating_three_count,rating_two_count,
-rating_one_count, se deben al valor 0 en la variable rating_count. Es decir no hay desglose entre distintos tipos de rating 
-si el contador total es cero. El rating está calculado a partir del rating_count y la distribución de ratings:
+Los 45 valores NA detectados en las variables rating_five_count,rating_four_count,rating_three_count,rating_two_count,rating_one_count, se deben al valor 0 en la variable rating_count. Es decir no hay desglose entre distintos tipos de rating si el contador total es cero. El rating está calculado a partir del rating_count y la distribución de ratings:
 
 rating = rating5 * 5 + rating4 * 4 + rating3 * 3 + rating2 * 2 + rating1   / rating_count
 
@@ -416,7 +436,7 @@ SalesSummerObj$rating_one_count[is.na(SalesSummerObj$rating_one_count)] <- 0
 ```
 
 
-La variable product_color tiene algunos valores sin información. Vamos a modificar esos valores asignando un string "No color".
+La variable product_color tiene algunos valores sin información. Vamos a modificar esos valores asignando un string "no color".
 
 ```{r,eval=TRUE,echo=TRUE}
 
@@ -446,22 +466,23 @@ SalesSummerObj$product_color <- factor(SalesSummerObj$product_color)
 
 ```
 
-La variable origin_country tiene algunos valores sin información. Vamos a modificar esos valores asignando un string "NC".
+La variable origin_country tiene algunos valores sin información, casi todos ellos en talas pequeñas. Vamos a modificar esos valores asignándolos a China (CN). Es el país que  más ventas tiene.
 
 ```{r,eval=TRUE,echo=TRUE}
 
 SalesSummerObj$origin_country <- as.character(SalesSummerObj$origin_country)
-SalesSummerObj$origin_country[SalesSummerObj$origin_country==""] <- "NC"
+SalesSummerObj$origin_country[SalesSummerObj$origin_country==""] <- "CN"
 SalesSummerObj$origin_country <- factor(SalesSummerObj$origin_country)
 
 ```
 
-La variable product_variation_size_id tiene algunos valores sin información. Vamos a modificar esos valores asignando un string "No size".
+
+La variable product_variation_size_id tiene algunos valores sin información. Vamos a modificar esos valores asignando la talla S, que es la más habitual dentro de los datos
 
 ```{r,eval=TRUE,echo=TRUE}
 
 SalesSummerObj$product_variation_size_id <- as.character(SalesSummerObj$product_variation_size_id)
-SalesSummerObj$product_variation_size_id[SalesSummerObj$product_variation_size_id ==""] <- "No size"
+SalesSummerObj$product_variation_size_id[SalesSummerObj$product_variation_size_id ==""] <- "S"
 SalesSummerObj$product_variation_size_id <- factor(SalesSummerObj$product_variation_size_id)
 
 ```
@@ -558,7 +579,8 @@ SalesSummerObj$product_variation_size_id <- factor(SalesSummerObj$product_variat
 
 levels(SalesSummerObj$product_variation_size_id)
 ```
-size_category (EC,HS,SS)
+
+
 ```{r,eval=TRUE,echo=TRUE}
 
 summary(SalesSummerObj)
@@ -691,7 +713,7 @@ SalesSummerObj$product_color <- as.numeric(factor(SalesSummerObj$product_color))
 
 
 
-## 2.4.2 - Selección de grupos de datos
+## 2.4.1 - Selección de grupos de datos
 
 Seleccionamos un conjunto inicial de grupos de datos que nos pueden resultar interesantes de analizar y/o comparar.
 
@@ -792,11 +814,11 @@ SalesSummerObj.rating.interval.cinco <- SalesSummerObj %>% filter(SalesSummerObj
 
 *** Agrupación por tallas grandes y pequeñas ***
 
-Añadimos una variable size_category inicializada con valor EC (Empty Category)
+Añadimos una variable size_category inicializada con valor M(Medium Size)
 
 ```{r,eval=TRUE,echo=TRUE}
 
-SalesSummerObj <- cbind(SalesSummerObj,size_category=c("EC"))
+SalesSummerObj <- cbind(SalesSummerObj,size_category=c("M"))
 
 ```
 
@@ -818,7 +840,7 @@ SalesSummerObj$product_variation_size_id == "6XL"] <- "HS"
 ```
 
 
-## 2.4.3 - Comprobación de normalidad y homogeneidad de la varianza
+## 2.4.2 - Comprobación de normalidad y homogeneidad de la varianza
 
 
 Para la comprobación de que los valores que toman nuestras variables cuantitativas provienen de una población distribuida normalmente, utilizaremos la prueba de normalidad deShapiro. Se comprueba si el p-valor es superior al nivel de significación prefijado alfa = 0.05. Si esto se cumple, entonces se considera que variable en cuestión sigue una distribución normal.
@@ -865,8 +887,9 @@ ggplot(data = SalesSummerObj, aes(x = price)) +
 
 ```{r,eval=TRUE,echo=TRUE}
 
-qplot(price, data = SalesSummerObj,geom="density")+ geom_vline(xintercept = mean(SalesSummerObj$price),
-color="red")+ geom_vline(xintercept = median(SalesSummerObj$price), color="blue")
+qplot(price, data = SalesSummerObj,geom="density")+ geom_vline(xintercept = 
+mean(SalesSummerObj$price),color="red")+ geom_vline(xintercept = 
+median(SalesSummerObj$price), color="blue")
 
 ```
 
@@ -895,10 +918,10 @@ Si el P-valor resultante de la prueba de Levene es inferior a un cierto nivel de
 Los resultados indican que **existen diferencias significativas** en las varianzas de los grupos creados por los valores de uses_ad_boosts y badge_fast_shipping. Para el resto de variables a estudiar, **no hay diferencias significativas** entre las varianzas de los grupos, es decir existe homogeneidad de varianza u homocedasticidad.
 
 
-## 2.4.4 - Aplicación de pruebas estadísticas
+## 2.4.3 - Aplicación de pruebas estadísticas
 
 
-### 2.4.4.1 - Estudio de la Correlación / Test de Spearman
+### 2.4.3.1 - Estudio de la Correlación / Test de Spearman
 
 En primer lugar, procedemos a realizar un análisis de correlación entre las distintas variables para determinar cuáles de ellas ejercen una mayor influencia sobre el precio del artículo. Para ello, se utilizará el coeficiente de correlación de Spearman, puesto que hemos visto que tenemos datos que no siguen una distribución normal.
 
@@ -947,13 +970,13 @@ El valor P es la probabilidad de que hubiera encontrado el resultado actual si e
 El valor del coeficiente positivo, indica una correlación positiva, es decir, cuanto mayor es el precio de retail, mayor es el precio del producto.
 
 
-### 2.4.4.2 - Contraste de Hipótesis
+### 2.4.3.2 - Contraste de Hipótesis
 
 ***Determinar si el precio es superior dependiendo del rating_interval del producto***
 
-Para ello utilizaremos dos muestras: una cuando la variable rating_interval del producto es cinco (rating >= 4.5) y otra cuando dicha variable es uno (rating <= 1.5)***
+Para ello utilizaremos dos muestras: una cuando la variable rating_interval del producto es cinco ***(rating >= 4.5)*** y otra cuando dicha variable es uno ***(rating <= 1.5)***
 
-Para realizar este tipo de tests paramétricos, es preciso que los datos sean normales, si la muestra es de tamaño inferior a 30. En nuestro caso, el contraste de hipótesis es aplicable ya que superamos dicho valor.
+Para realizar este tipo de tests paramétricos, es preciso que los datos sean normales, si la muestra es de tamaño inferior a 30. En nuestro caso, el contraste de hipótesis es aplicable ya que superamos dicho valor. Hemos comprobado también la homocedasticidad previamente.
 
 
 Planteamos un contraste de Hipótesis unilateral sobre  la diferencia de medias:
@@ -967,6 +990,8 @@ $$
   H_{1}: \mu_{1} - \mu_{2} < 0
 $$
 donde mu1 es la media de la población de la que se extrae la primera muestra y mu2 es la media de la población de la que extrae la segunda. Así, tomaremos alfa = 0.05.
+
+
 
 ```{r,eval=TRUE,echo=TRUE}
 
@@ -1016,7 +1041,7 @@ Obtenemos un p-value mayor que el valor de significación, por lo que no podemos
 **NO** podemos aplicar el test para este grupo de datos ya que la muestra para shipping.uno es 3 < 30 y la variable no es normal.
 
 
-# 2.4.4.3 - Regresión lineal 
+### 2.4.3.3 - Regresión lineal 
 
 
 Plantearemos varios modelos de regresión utilizando algunos de los regresores cuantitativos que tengan la correlación más alta con la variable precio:
@@ -1051,6 +1076,8 @@ summary(modelo1)
 
 ```
 
+Vemos que el regresor que más contribuye positivamente sobre el precio de venta es el precio de retail. PvInventory lo hace casi 10 veces menos. El coeficiente de determinación es **0.212**
+
 Modelo2: Añadiendo el modelo anterior los regresores ratingfour y rating one
 
 ```{r,eval=TRUE,echo=TRUE} 
@@ -1060,6 +1087,8 @@ modelo2 <- lm(artprice ~ retprice + pvinventory + ratingfour + ratingone, data =
 summary(modelo2)
 
 ``` 
+Vemos que al añadir los regresores ratingfour y ratingone, la influencia de retprice y pvinventory ha bajado muy ligeramente, incrementándose muy ligeramente el coeficiente de determinación a **0.223**
+
 
 ***Calidad del ajuste de los modelos***
 
@@ -1070,9 +1099,9 @@ $$
  R^2 = {\frac{\sigma \space recta \space regresión}{\sigma \space total \space datos}} = {\frac{SCR} {SCT}} =  1 - {\frac{SCE} {SCT}}
 $$ 
 
-Este coeficiente aparece al calcular ambos modelos con la función lm(), en nuestro caso es 0.2264 en el modelo1, pero conviene utilizar el ajustado que es: **0.2234**
+Este coeficiente aparece al calcular ambos modelos con la función lm(), en nuestro caso es **0.2136** en el modelo1, pero conviene utilizar el ajustado que es: **0.2121**
 
-Lo que implica que el modelo1 es capaz de explicar alrededor del **22.34 % de la varianza de las observaciones**. Resultado bastante pobre.
+Lo que implica que el modelo1 es capaz de explicar alrededor del **21.21 % de la varianza de las observaciones**. Resultado bastante pobre.
 
 El coeficiente de correlación muestral, r, mide el grado de asociación entre las variables. Vamos a calcularlo a partir del coeficiente de determinación:
 
@@ -1099,9 +1128,33 @@ Vemos que el intervalo menos amplio corresponde al regresor retprice, por lo que
 
 Observamos que la mayor ineficiencia en la estimación del parámetro corresponde al regresor pvinventory, pero con una diferencia realmene mínima respecto a retprice
 
-En el segundo modelo comprobamos que el hecho de añadir los regresores ratingfour y ratingone mejora el coeficiente de determinación ajustado aunque mínimamente, que se queda en un 22.34%.
+En el segundo modelo comprobamos que el hecho de añadir los regresores ratingfour y ratingone mejora el coeficiente de determinación ajustado aunque mínimamente, que se queda en un **22.34%**.
 
-Realizaremos una predicción del precio de venta:
+Vamos a calcular coeficiente de correlación del Modelo 2:
+
+
+```{r,eval=TRUE,echo=TRUE}
+
+r2 = sqrt(0.2234)
+r2
+
+```
+
+Lo que indica  una relación lineal no excesivamente fuerte entre las variables utilizadas y el precio.
+
+
+A continuación vamos a calcular los intervalos de confianza del modelo1:
+
+```{r,eval=TRUE,echo=TRUE} 
+
+confint(modelo2)
+
+``` 
+
+
+
+
+Realizaremos una predicción del precio de venta a partir del modelo 1:
 
 ```{r,eval=TRUE,echo=TRUE} 
 
@@ -1115,15 +1168,15 @@ predict(modelo1, newdata)
 ``` 
 
 
-# 2.4.4.4 - Regresión Logística (Multinomial)
+### 2.4.3.4 - Regresión Logística (Multinomial)
 
 Se trata de un modelo de regresión logística donde la variable dependiente tiene más de dos categorías. La respuesta puede o bien ser nominal o bien ordinal. A su vez, las variables explicativas pueden ser categóricas o cuantitativas.
 
-En este caso vamos a tratar como variable dependiente la variable (size_category (EC,HS,SS)), y como variable independiente origin_country (AT,CN,GB,NC,US,VE).
+En este caso vamos a tratar como variable dependiente la variable (size_category (M,HS,SS)), y como variable independiente origin_country (AT,CN,GB,US,VE).
 
 Las variables que vamos a utilizar en este modelo son cuantitativas, por lo que el análisis de sus relaciones se ha de obtener mediante Tablas de contingencia y pruebas Chi-Cuadrado
 
-# 2.4.4.4.1 Tablas de Contingencia
+#### 2.4.3.4.1 Tablas de Contingencia
 
 ```{r,eval=TRUE,echo=TRUE}
 
@@ -1142,10 +1195,10 @@ plot(Tabla.SC.OC, col= c("red", "blue", "green", "yellow", "cyan", "magenta", "o
 
 ```
 
-Vemos que la mayor contribución a los tipos de tallas viene de China, especialmente sobre las tallas pequeñas. El siguiente país es Estados Unidos, sobre todo en tallas pequeñas también. Hay una contribución de ventas no catalogadas por país en las tallas grandes. Y países como China que contribuyen en gran medida a ventas donde no se han indicado las tallas.
+Vemos que la mayor contribución a los tipos de tallas (M y SS) viene de China, especialmente sobre las tallas pequeñas. El siguiente país es Estados Unidos, sobre todo en tallas pequeñas también. 
 
 
-# 2.4.4.4.2 Estudio de la Correlación / Tests Chi-Squared
+#### 2.4.3.4.2 Estudio de la Correlación / Tests Chi-Squared
 
 Estamos tratando variables cuantitativas politómicas y nominales, por lo que, para valorar la independencia, el test Chi-squared resulta adecuado en algunos casos, y el test exacto de Fisher en otros. 
 
@@ -1178,10 +1231,20 @@ SalesSummerObj[with(SalesSummerObj,order(size_category)), ]
 ***Cálculo del modelo***
 
 
+Hacemos que la categoría de talla de referencia sea la M.
+
 ```{r, results= 'hide', include=TRUE}
 
-model.sizecategory.origincountry = multinom(SalesSummerObj$origin_country ~ 
-SalesSummerObj$size_category, data = SalesSummerObj)
+SalesSummerObj$size_category<-  relevel(factor(SalesSummerObj$size_category), ref = "M")
+
+```
+
+
+
+
+```{r, results= 'hide', include=TRUE}
+
+model.sizecategory.origincountry = multinom(SalesSummerObj$origin_country ~ SalesSummerObj$size_category, data = SalesSummerObj)
 
 ```
 
@@ -1204,12 +1267,26 @@ coefmodel.sizecategory.origincountry
 
 ```
 
+Vemos que las tallas grandes determinan a China como país de origen y las tallas pequeñas fundamentalmente a Gran Bretaña y a Singapur. En estos dos paises el coeficiente es el mismo para ambos tipos de tallas al tener solo una venta cada uno de ellos.
+
+
+Vamos a calcular los p-value:
+
+```{r,eval=TRUE,echo=TRUE}
+
+z <- summary(model.sizecategory.origincountry)$coefficients/summary(model.sizecategory.origincountry)$standard.errors
+# 2-tailed Wald z tests to test significance of coefficients
+p <- (1 - pnorm(abs(z), 0, 1)) * 2
+p
+
+```
+
 Vamos a evaluar ahora los ***odds ratio***. Los ***odds*** es la razón de la probabilidad de ocurrencia de un suceso entre la probabilidad de su no ocurrencia. Vamos a ver cómo transformamos los coeficientes en odds ratios. Trataremos de ser algo didácticos, y vamos a explicar en detalle su cálculo para China:
 
 En esta expresión, el modelo está expresado en términos del ***log-odds***:
 
 $$
-ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 12.564 + 16.729 * HS  - 5.904 * SS
+ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 12.41 + 15.07 * HS  - 5.73 * SS
 $$
 Si se escribe en términos de odds, se tiene:
 
@@ -1250,14 +1327,14 @@ $$
 Para el caso de los Estados Unidos:
 
 $$
-ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 9.112 -4.31 * HS - 6.174 * SS 
+ln({\frac{P(Y=1/X)}{1-P(Y=1/X)}}) = 8.99 -4.76 * HS - 6.04 * SS 
 $$
 
 ```{r,eval=TRUE,echo=TRUE}
 
 # Odds Ratios Modelo 
 
-exp(coefmodel.sizecategory.origincountry)
+exp(coef(model.sizecategory.origincountry))
 
 
 ```
@@ -1269,36 +1346,92 @@ Calcularemos ahora los intervalos de confianza:
 # Intervalos de confianza odds ratio
 
 
-Modelo.sizecategory.origincountry <- confint(model.sizecategory.origincountry)
+exp(confint(model.sizecategory.origincountry))
 
-Modelo.sizecategory.origincountry
 
 ```
+
+Los IC nos orientan sobre los posibles valores que puede tomar el verdadero valor del parámetro. Cuanto más ancho sea el intervalo, más ineficiente es su estimación.Lo que nos lleva a la conclusión de que toda la eficiencia se centra en la categoría de tallas grandes.
 
 
 # 2.5 - REPRESENTACIÓN DE RESULTADOS
 
-**Interpretación de Modelos**
 
-
-
-
-***Vamos a representar gráficamente los datos de los regresores retprice, pvinventory y ratingone respecto a price:***
+***Vamos a representar gráficamente los datos de los regresores retprice, pvinventory y ratingone respecto a price en el modelo de regresión lineal:***
 
 ```{r,eval=TRUE,echo=TRUE}
 
 scatter3D(x=retprice, y=pvinventory, z =ratingone ,groups=artprice, theta=30, phi=8, pch=20, bty = "g", 
-          grid=FALSE, fit="smooth")
+grid=FALSE, fit="smooth")
 
 
 ```
 
 Vemos que los precios más bajos se concentran para valores bajos y altos de inventario de la talla de la compra, y para precios de retail bajos. Los precios medios se agrupan en los valores centrales de los tres regresores, y los precios más altos se encuentran para valores bajos de los regresores retprice y pvinventory, y para valores altos del regresor ratingone.
 
+***Regresión Logística ***
+
+Vemos que la mayor contribución a los tipos de tallas (M y SS) viene de China, especialmente sobre las tallas pequeñas. El siguiente país es Estados Unidos, sobre todo en tallas pequeñas también. 
+
+Vemos que las tallas grandes determinan a China como país de origen y las tallas pequeñas fundamentalmente a Gran Bretaña y a Singapur. En estos dos paises el coeficiente es el mismo para ambos tipos de tallas al tener solo una venta cada uno de ellos.
+
+
 **Tabla resumen modelo regresión logística multinomial**
 
 
+
+```{r pressure, echo=FALSE, fig.cap="Tabla resumen modelos", out.width = '100%'} 
+
+knitr::include_graphics("tablaresumenmlm.png") 
+
+``` 
+
+
 # 2.6 - RESOLUCIÓN DEL PROBLEMA
+
+**Interpretación de Modelos**
+
+
+***Correlación***
+
+Dentro del estudio de la correlación, el valor del coeficiente positivo en el regresor retail , indica una correlación positiva, es decir, cuanto mayor es el precio de retail, mayor es el precio del producto. A continuación vienen la variable product_variation_inventory, y las variables de rating_*_count. De cualquier forma, no hay ninguna variable que este correlacionada de forma fuerte con la variable price, ya que ninguna está por encima de 0.8
+
+El valor P es la probabilidad de que hubiera encontrado el resultado actual si el coeficiente de correlación fuera cero (hipótesis nula). Si esta probabilidad es menor que el 5% convencional (P <0.05), el coeficiente de correlación se denomina estadísticamente significativo, por lo que podemos concluir que, el coeficiente de correlación entre retail_price y price (0.5) es estadísticamente significativo, lo mismo sucede para las variables rating_*_count.
+
+
+***Contraste de Hipótesis***
+
+Después de realizar varios tests:
+
+- No podemos concluir que los artículos con un rating_interval = 5 sean más caros que los que tienen un rating_interval = 1.
+
+- No podemos concluir que los artículos catalogados de mayor calidad tengan un precio superior
+
+- No podemos concluir que el uso de anuncios incrementa el precio de venta.
+
+
+***Regresión Lineal***
+
+***Modelo 1***
+
+Vemos que el regresor que más contribuye positivamente sobre el precio de venta es el precio de retail. PvInventory lo hace casi 10 veces menos. 
+
+El coeficiente de determinación es **0.2121**. Lo que implica que el modelo1 es capaz de explicar alrededor del **21.21 % ** de la varianza de las observaciones. Resultado bastante pobre.
+
+El coeficiente de correlación muestral de 0.460 indica  una relación lineal no excesivamente fuerte entre las variables utilizadas y el precio.Observamos que la mayor ineficiencia en la estimación del parámetro corresponde al regresor pvinventory, pero con una diferencia realmene mínima respecto a retprice
+
+Vemos que el intervalo de confianza menos amplio corresponde al regresor retprice, por lo que indica mayor precisión. Es decir, mientras más confianza se necesita, más ancho es el intervalo.
+
+***Modelo 2***
+
+Vemos que al añadir los regresores ratingfour y ratingone, la influencia de retprice y pvinventory ha bajado muy ligeramente, incrementándose muy ligeramente el coeficiente de determinación a **0.2234**
+
+El coeficiente de correlación muestral de **0.472** indica  una relación lineal no excesivamente fuerte entre las variables utilizadas y el precio.
+
+Vemos que el intervalo de confianza menos amplio corresponde al regresor retprice, por lo que indica mayor precisión. 
+
+
+En resumen, las relaciones de los datos utilizados con respecto a la variable price son **débiles** en general. Los modelos de regresión lineales planteados tienen **poca capacidad** de explicación de la varianza de las observaciones. El modelo de regresión logística nos ha proporcionado információn **más clara** sobre la relación entre las categorías de las tallas y los países de origen.
 
 
 # REFERENCIAS
@@ -1306,36 +1439,41 @@ Vemos que los precios más bajos se concentran para valores bajos y altos de inv
 
 Documentación máster UOC: Modelos_de_Regresión_Logística.pdf (PID_00276229)
 
-6 Errores que cometes al usar las pruebas de hipótesis clásicas: https://www.maximaformacion.es/blog-dat/6-errores-que-cometes-al-usar-las-pruebas-de-hipotesis-clasicas/
+**6 Errores que cometes al usar las pruebas de hipótesis clásicas**: <https://www.maximaformacion.es/blog-dat/6-errores-que-cometes-al-usar-las-pruebas-de-hipotesis-clasicas/>
 
-Modelos con Variables Cualitativas: https://bookdown.org/content/2274/modelos-con-variables-cualitativas.html
+**Modelos con Variables Cualitativas**: <https://bookdown.org/content/2274/modelos-con-variables-cualitativas.html>
 
-Estadística conceptos clave: https://www.usj.es/sites/default/files/tarjetas/aprendizaje/EstadisticaConceptosClave.pdf
+**Estadística conceptos clave**: <https://www.usj.es/sites/default/files/tarjetas/aprendizaje/EstadisticaConceptosClave.pdf>
 
-Análisis de variables categóricas con R: https://biocosas.github.io/R/060_analisis_datos_categoricos.html
+**Análisis de variables categóricas con R**: <https://biocosas.github.io/R/060_analisis_datos_categoricos.html>
 
-Correlación: teoría y práctica: https://www.ccg.unam.mx/~vinuesa/R4biosciences/docs/Tema8_correlacion.html
+**Correlación: teoría y práctica**: <https://www.ccg.unam.mx/~vinuesa/R4biosciences/docs/Tema8_correlacion.html>
   
-Test estadísticos para variables cualitativas: test exacto de Fisher, chi-cuadrado de Pearson, McNemar y Q-Cochran: 
-https://www.cienciadedatos.net/documentos/22.2_test_exacto_de_fisher_chi-cuadrado_de_pearson_mcnemar_qcochran#(chi^2)_de_Pearson_(test_de_independencia)
+**Test estadísticos para variables cualitativas: test exacto de Fisher, chi-cuadrado de Pearson, McNemar y Q-Cochran**:
+<https://www.cienciadedatos.net/documentos/22.2_test_exacto_de_fisher_chi-cuadrado_de_pearson_mcnemar_qcochran#(chi^2)_de_Pearson_(test_de_independencia)>
 
-Logistic Regression in R: https://rpubs.com/rslbliss/r_logistic_ws
+**Logistic Regression in R**: <https://rpubs.com/rslbliss/r_logistic_ws>
 
-Multinomial distribution: https://en.wikipedia.org/wiki/Multinomial_distribution
+**Multinomial distribution**: <https://en.wikipedia.org/wiki/Multinomial_distribution>
 
-Test estadísticos para variables cualitativas: test binomial exacto, test multinomial y test chi-cuadrado goodnes of fit:https://www.cienciadedatos.net/documentos/22.1_test_binomial_exacto_test_multinomial_test_chi-cuadrado_goodnes_of_fit
+**Test estadísticos para variables cualitativas: test binomial exacto, test multinomial y test chi-cuadrado goodnes of fit**:<https://www.cienciadedatos.net/documentos/22.1_test_binomial_exacto_test_multinomial_test_chi-cuadrado_goodnes_of_fit>
 
-Modelos de respuesta multinomial con R. Aplicación para el estudio de la depresión en pacientes con discapacidad: https://masteres.ugr.es/moea/pages/tfm1011/modelosderespuestamultinomialconraplicacionparaelestudiodeladepresionenpacientescondiscapacidad/!
+**Modelos de respuesta multinomial con R. Aplicación para el estudio de la depresión en pacientes con discapacidad**: <https://masteres.ugr.es/moea/pages/tfm1011/modelosderespuestamultinomialconraplicacionparaelestudiodeladepresionenpacientescondiscapacidad/>
 
-Regresión Logística Multinomial:
-Multinomialhttp://halweb.uc3m.es/esp/Personal/personas/jmmarin/esp/Categor/Tema5Cate.pdf  (Modelos Logit para respuestas nominales)
+**Regresión Logística Multinomial (Modelos Logit para respuestas nominales)**: <Multinomialhttp://halweb.uc3m.es/esp/Personal/personas/jmmarin/esp/Categor/Tema5Cate.pdf>
 
+**Métodos de clasificación**: <https://bookdown.org/content/2274/metodos-de-clasificacion.html>
 
-
-
-
+**Getting p-values for “multinom” in R (nnet package)**: <https://stats.stackexchange.com/questions/63222/getting-p-values-for-multinom-in-r-nnet-package>
 
 
+# CONTRIBUCIONES
 
+
+```{r,echo=FALSE, fig.cap="Tabla de Contribuciones", out.width = '100%'} 
+
+knitr::include_graphics("TablaContribuciones.png") 
+
+``` 
 
 
